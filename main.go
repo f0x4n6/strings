@@ -23,16 +23,16 @@ func stream(name string, ch chan<- byte) {
 	f, err := os.Open(name)
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		_, _ = fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	buf, err := io.ReadAll(f)
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		_, _ = fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func flush(runes []rune) []rune {
 		s := string(runes)
 
 		if len(strings.TrimSpace(s)) > 0 {
-			fmt.Println(s)
+			_, _ = fmt.Println(s)
 		}
 	}
 
@@ -57,7 +57,7 @@ func flush(runes []rune) []rune {
 
 func main() {
 	if len(os.Args) == 1 || os.Args[1] == "--help" {
-		fmt.Fprintln(os.Stderr, "usage: strings FILE")
+		_, _ = fmt.Fprintln(os.Stderr, "usage: strings FILE")
 		os.Exit(2)
 	}
 

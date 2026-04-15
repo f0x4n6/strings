@@ -19,15 +19,6 @@ type String struct {
 	Value string
 }
 
-// Compare string data.
-func Compare(a, b String) int {
-	if a.Value == b.Value {
-		return int(a.Offset - b.Offset)
-	}
-
-	return strings.Compare(a.Value, b.Value)
-}
-
 // Carve Unicode and/or ASCII string data.
 //
 // The returned channel will be closed at the end of the operation.

@@ -61,11 +61,11 @@ func main() {
 
 	defer func() { _ = m.Unmap() }()
 
-	ustrings.Carve(m, *x, *y, *a, func(i int64, r []rune) {
+	for s := range ustrings.Carve(m, *x, *y, *a) {
 		if *o {
-			_, _ = fmt.Printf("%08x %s\n", i, string(r))
+			_, _ = fmt.Printf("%08x %s\n", s.Offset, s.Value)
 		} else {
-			_, _ = fmt.Println(string(r))
+			_, _ = fmt.Println(s.Value)
 		}
-	})
+	}
 }

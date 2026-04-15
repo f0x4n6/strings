@@ -9,39 +9,57 @@ import (
 	"strconv"
 )
 
-// Carve Unicode and/or ASCII strings.
-func Carve(data []byte, min, max int, ascii bool, flush func(int64, []rune)) {
-	b := bufio.NewReader(bytes.NewReader(data))
-	s := make([]rune, 0, max)
-	i := int64(0)
+// String data
+type String struct {
+	// Offset of string
+	Offset uint64
+	// Value of string
+	Value string
+}
 
-	reset := func() {
-		if len(s) >= min {
-			flush(i-int64(len(string(s))), s)
-		}
-		s = s[:0]
-	}
+// Carve Unicode and/or ASCII string data.
+//
+// The returned channel will be closed at the end of the operation.
+func Carve(data []byte, min, max int, ascii bool) <-chan *String {
+	ch := make(chan *String, 1024)
 
-	defer reset()
+	go func() {
+		b := bufio.NewReader(bytes.NewReader(data))
+		s := make([]rune, 0, max)
+		i := uint64(0)
 
-	var r rune
-	var n int
-	var err error
-
-	for ; ; i += int64(n) {
-		if r, n, err = b.ReadRune(); err != nil {
-			return
-		}
-
-		if !strconv.IsPrint(r) || ascii && r >= 0xFF {
-			reset()
-			continue
+		flush := func() {
+			if len(s) >= min {
+				v := string(s)
+				ch <- &String{i - uint64(len(v)), v}
+			}
+			s = s[:0]
 		}
 
-		if len(s) >= max {
-			reset()
-		}
+		defer close(ch)
+		defer flush()
 
-		s = append(s, r)
-	}
+		var r rune
+		var n int
+		var err error
+
+		for ; ; i += uint64(n) {
+			if r, n, err = b.ReadRune(); err != nil {
+				return
+			}
+
+			if !strconv.IsPrint(r) || ascii && r >= 0xFF {
+				flush()
+				continue
+			}
+
+			if len(s) >= max {
+				flush()
+			}
+
+			s = append(s, r)
+		}
+	}()
+
+	return ch
 }

@@ -39,9 +39,9 @@ func TestCarve(t *testing.T) {
 
 			n := 0
 
-			Carve(buf, 4, 255, tt.ascii, func(_ int64, _ []rune) {
+			for range Carve(buf, 4, 255, tt.ascii) {
 				n++
-			})
+			}
 
 			if n != tt.count {
 				t.Fatal("count mismatch")
@@ -61,7 +61,8 @@ func BenchmarkCarve(b *testing.B) {
 		b.ResetTimer()
 
 		for n := 0; n < b.N; n++ {
-			Carve(bin, 4, 255, false, func(_ int64, _ []rune) {})
+			for range Carve(bin, 4, 255, false) {
+			}
 		}
 	})
 }

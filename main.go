@@ -2,14 +2,16 @@
 //
 // Usage:
 //
-//	ustrings [nmao] file
+//	ustrings [nmtao] file
 //
 // The options are:
 //
-//	n int
+//	n uint
 //	    Minimum string length (default 4).
-//	m int
-//	    Maximum string length (default 255).
+//	m uint
+//	    Maximum string length (default 256).
+//	t
+//		Trim spaces from both ends.
 //	a
 //	    Only ASCII strings.
 //	o
@@ -18,7 +20,7 @@
 // The arguments are:
 //
 //	file
-//	    File to carve (required).
+//	    File to be carved (required).
 package main
 
 import (
@@ -32,12 +34,13 @@ import (
 
 func main() {
 	flag.Usage = func() {
-		_, _ = fmt.Fprintln(os.Stderr, "usage: ustrings [nmao] file")
+		_, _ = fmt.Fprintln(os.Stderr, "usage: ustrings [nmtao] file")
 		os.Exit(2)
 	}
 
-	x := flag.Int("n", 4, "minimum string length")
-	y := flag.Int("m", 255, "maximum string length")
+	x := flag.Uint("n", 4, "minimum string length")
+	y := flag.Uint("m", 256, "maximum string length")
+	t := flag.Bool("t", false, "trim spaces from both ends")
 	a := flag.Bool("a", false, "only ASCII strings")
 	o := flag.Bool("o", false, "show file offset")
 
@@ -65,7 +68,7 @@ func main() {
 
 	defer func() { _ = m.Unmap() }()
 
-	for s := range ustrings.Carve(m, *x, *y, *a) {
+	for s := range ustrings.Carve(m, *x, *y, *t, *a) {
 		if *o {
 			_, _ = fmt.Printf("%08x %s\n", s.Offset, s.Value)
 		} else {

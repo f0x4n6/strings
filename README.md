@@ -7,12 +7,13 @@ go install go.foxforensics.dev/ustrings@latest
 
 ## Usage
 ```console
-$ ustrings [nmao] FILE
+$ ustrings [nmtao] FILE
 ```
 
 ### Options
 * `-n` Minimum string length (default `4`)
-* `-m` Maximum string length (default `255`)
+* `-m` Maximum string length (default `256`)
+* `-t` Trim spaces from both ends
 * `-a` Only ASCII strings
 * `-o` Show file offset
 

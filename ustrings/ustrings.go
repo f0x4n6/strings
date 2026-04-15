@@ -7,6 +7,8 @@ import (
 	"bufio"
 	"bytes"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 )
 
 // String data
@@ -20,7 +22,7 @@ type String struct {
 // Carve Unicode and/or ASCII string data.
 //
 // The returned channel will be closed at the end of the operation.
-func Carve(data []byte, min, max int, ascii bool) <-chan *String {
+func Carve(data []byte, min, max uint, trim, ascii bool) <-chan *String {
 	ch := make(chan *String, 1024)
 
 	go func() {
@@ -29,10 +31,16 @@ func Carve(data []byte, min, max int, ascii bool) <-chan *String {
 		i := uint64(0)
 
 		flush := func() {
-			if len(s) >= min {
-				v := string(s)
+			v := string(s)
+
+			if trim {
+				v = strings.TrimSpace(v)
+			}
+
+			if uint(utf8.RuneCountInString(v)) >= min {
 				ch <- &String{i - uint64(len(v)), v}
 			}
+
 			s = s[:0]
 		}
 
@@ -53,7 +61,7 @@ func Carve(data []byte, min, max int, ascii bool) <-chan *String {
 				continue
 			}
 
-			if len(s) >= max {
+			if uint(len(s)) >= max {
 				flush()
 			}
 

@@ -14,18 +14,21 @@ func TestCarve(t *testing.T) {
 	for _, tt := range []struct {
 		name  string
 		path  string
+		trim  bool
 		ascii bool
 		count int
 	}{
 		{
 			name:  "ASCII",
 			path:  bin,
+			trim:  true,
 			ascii: true,
-			count: 3117,
+			count: 3095,
 		},
 		{
 			name:  "Unicode",
 			path:  txt,
+			trim:  false,
 			ascii: false,
 			count: 582,
 		},
@@ -39,7 +42,7 @@ func TestCarve(t *testing.T) {
 
 			n := 0
 
-			for range Carve(buf, 4, 255, tt.ascii) {
+			for range Carve(buf, 4, 255, tt.trim, tt.ascii) {
 				n++
 			}
 
@@ -61,7 +64,7 @@ func BenchmarkCarve(b *testing.B) {
 		b.ResetTimer()
 
 		for n := 0; n < b.N; n++ {
-			for range Carve(bin, 4, 255, false) {
+			for range Carve(bin, 4, 255, false, false) {
 			}
 		}
 	})

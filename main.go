@@ -1,4 +1,4 @@
-// Carve Unicode and ASCII strings from binary files.
+// Carve Unicode and/or ASCII strings from files.
 //
 // Usage:
 //

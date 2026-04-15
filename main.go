@@ -1,8 +1,19 @@
-// ASCII and Unicode string carving tool.
+// Carve Unicode and ASCII strings from binary files.
 //
 // Usage:
 //
-//	strings file
+//	ustrings [nmao] file
+//
+// The options are:
+//
+//	n int
+//	    Minimum string length (default 4).
+//	m int
+//	    Maximum string length (default 255).
+//	a
+//	    Only ASCII strings.
+//	o
+//	    Show file offset.
 //
 // The arguments are:
 //
@@ -11,100 +22,50 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"io"
 	"os"
-	"strings"
-	"unicode"
-	"unicode/utf8"
+
+	"go.foxforensics.dev/go-mmap"
+	"go.foxforensics.dev/ustrings/ustrings"
 )
 
-func stream(name string, ch chan<- byte) {
-	f, err := os.Open(name)
+func main() {
+	if len(os.Args) == 1 || os.Args[1] == "--help" {
+		_, _ = fmt.Fprintln(os.Stderr, "usage: ustrings [nmao] file")
+		os.Exit(2)
+	}
+
+	x := flag.Int("n", 4, "minimum string length")
+	y := flag.Int("m", 255, "maximum string length")
+	a := flag.Bool("a", false, "only ASCII strings")
+	o := flag.Bool("o", false, "show file offset")
+
+	flag.Parse()
+
+	f, err := os.Open(flag.Arg(0))
 
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
-		return
+		os.Exit(1)
 	}
 
 	defer func() { _ = f.Close() }()
 
-	buf, err := io.ReadAll(f)
+	m, err := mmap.Map(f, mmap.RDONLY, 0)
 
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
-		return
+		os.Exit(1)
 	}
 
-	for _, b := range buf {
-		ch <- b
-	}
+	defer func() { _ = m.Unmap() }()
 
-	close(ch)
-}
-
-func flush(runes []rune) []rune {
-	if len(runes) >= 3 {
-		s := string(runes)
-
-		if len(strings.TrimSpace(s)) > 0 {
-			_, _ = fmt.Println(s)
-		}
-	}
-
-	return runes[:0]
-}
-
-func main() {
-	if len(os.Args) == 1 || os.Args[1] == "--help" {
-		_, _ = fmt.Fprintln(os.Stderr, "usage: strings file")
-		os.Exit(2)
-	}
-
-	ch := make(chan byte, 1024)
-
-	go stream(os.Args[1], ch)
-
-	buf := make([]byte, 4)
-
-	var runes []rune
-
-	for b := range ch {
-		buf[0] = b
-
-		l := 1
-		k := 1
-
-		if b&0x80 == 0 {
-			k = 1
-		} else if b&0xE0 == 0xC0 {
-			k = 2
-		} else if b&0xF0 == 0xE0 {
-			k = 3
-		} else if b&0xF8 == 0xF0 {
-			k = 4
-		}
-
-		if k > 1 {
-			for i := 1; i < k; i++ {
-				if b, ok := <-ch; ok {
-					buf[i] = b
-				} else {
-					break
-				}
-
-				l++
-			}
-		}
-
-		r, _ := utf8.DecodeRune(buf[:l])
-
-		if r != utf8.RuneError && unicode.IsPrint(r) {
-			runes = append(runes, r)
+	ustrings.Carve(m, *x, *y, *a, func(i int64, r []rune) {
+		if *o {
+			_, _ = fmt.Printf("%08x %s\n", i, string(r))
 		} else {
-			runes = flush(runes)
+			_, _ = fmt.Println(string(r))
 		}
-	}
-
-	flush(runes)
+	})
 }

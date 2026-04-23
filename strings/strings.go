@@ -1,7 +1,7 @@
-// Package ustrings provides methods for Unicode and ASCII string carving.
+// Package strings provides methods for Unicode and ASCII string carving.
 //
 // Source: https://github.com/robpike/strings/blob/master/strings.go
-package ustrings
+package strings
 
 import (
 	"bufio"
@@ -22,7 +22,7 @@ type String struct {
 // Carve Unicode and/or ASCII string data.
 //
 // The returned channel will be closed at the end of the operation.
-func Carve(data []byte, min, max uint, trim, ascii bool) <-chan *String {
+func Carve(data []byte, min, max uint, ascii, trim bool) <-chan *String {
 	ch := make(chan *String, 1024)
 
 	go func() {

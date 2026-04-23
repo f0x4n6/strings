@@ -1,4 +1,4 @@
-module go.foxforensics.dev/ustrings
+module go.foxforensics.dev/strings
 
 go 1.26
 

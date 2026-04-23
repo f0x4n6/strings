@@ -2,14 +2,14 @@
 //
 // Usage:
 //
-//	ustrings [nmtao] file
+//	strings [nmtao] file
 //
 // The options are:
 //
 //	n uint
-//	    Minimum string length (default 4).
+//	    Minimum string length (default 3).
 //	m uint
-//	    Maximum string length (default 256).
+//	    Maximum string length.
 //	t
 //		Trim spaces from both ends.
 //	a
@@ -26,20 +26,21 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"os"
 
 	"go.foxforensics.dev/go-mmap"
-	"go.foxforensics.dev/ustrings/ustrings"
+	"go.foxforensics.dev/strings/strings"
 )
 
 func main() {
 	flag.Usage = func() {
-		_, _ = fmt.Fprintln(os.Stderr, "usage: ustrings [nmtao] file")
+		_, _ = fmt.Fprintln(os.Stderr, "usage: strings [nmtao] file")
 		os.Exit(2)
 	}
 
-	x := flag.Uint("n", 4, "minimum string length")
-	y := flag.Uint("m", 256, "maximum string length")
+	x := flag.Uint("n", 3, "minimum string length")
+	y := flag.Uint("m", math.MaxUint32, "maximum string length")
 	t := flag.Bool("t", false, "trim spaces from both ends")
 	a := flag.Bool("a", false, "only ASCII strings")
 	o := flag.Bool("o", false, "show file offset")
@@ -68,7 +69,7 @@ func main() {
 
 	defer func() { _ = m.Unmap() }()
 
-	for s := range ustrings.Carve(m, *x, *y, *t, *a) {
+	for s := range strings.Carve(m, *x, *y, *a, *t) {
 		if *o {
 			_, _ = fmt.Printf("%08x %s\n", s.Offset, s.Value)
 		} else {

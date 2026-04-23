@@ -1,4 +1,4 @@
-package ustrings
+package strings
 
 import (
 	"io"
@@ -23,14 +23,14 @@ func TestCarve(t *testing.T) {
 			path:  bin,
 			trim:  true,
 			ascii: true,
-			count: 3095,
+			count: 5633,
 		},
 		{
 			name:  "Unicode",
 			path:  txt,
 			trim:  false,
 			ascii: false,
-			count: 582,
+			count: 614,
 		},
 	} {
 		t.Run("Test Carve "+tt.name, func(t *testing.T) {
@@ -42,7 +42,7 @@ func TestCarve(t *testing.T) {
 
 			n := 0
 
-			for range Carve(buf, 4, 255, tt.trim, tt.ascii) {
+			for range Carve(buf, 3, 255, tt.ascii, tt.trim) {
 				n++
 			}
 
@@ -64,7 +64,7 @@ func BenchmarkCarve(b *testing.B) {
 		b.ResetTimer()
 
 		for n := 0; n < b.N; n++ {
-			for range Carve(bin, 4, 255, false, false) {
+			for range Carve(bin, 3, 255, false, false) {
 			}
 		}
 	})

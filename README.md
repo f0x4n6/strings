@@ -1,18 +1,18 @@
-# ustrings
+# strings
 Carve Unicode and/or ASCII strings from files.
 
 ```console
-go install go.foxforensics.dev/ustrings@latest
+go install go.foxforensics.dev/strings@latest
 ```
 
 ## Usage
 ```console
-$ ustrings [nmtao] FILE
+$ strings [nmtao] FILE
 ```
 
 ### Options
-* `-n` Minimum string length (default `4`)
-* `-m` Maximum string length (default `256`)
+* `-n` Minimum string length (default `3`)
+* `-m` Maximum string length
 * `-t` Trim spaces from both ends
 * `-a` Only ASCII strings
 * `-o` Show file offset

@@ -11,7 +11,7 @@ $ strings [nmtao] FILE
 ```
 
 ### Options
-* `-n` Minimum string length (default `3`)
+* `-n` Minimum string length (default 3)
 * `-m` Maximum string length
 * `-t` Trim spaces from both ends
 * `-a` Only ASCII strings

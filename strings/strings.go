@@ -1,4 +1,4 @@
-// Package strings provides methods for Unicode and ASCII string carving.
+// Package strings provides methods for ASCII and Unicode string carving.
 //
 // Source: https://github.com/robpike/strings/blob/master/strings.go
 package strings
@@ -19,7 +19,7 @@ type String struct {
 	Value string
 }
 
-// Carve Unicode and/or ASCII string data.
+// Carve ASCII and Unicode string data.
 //
 // The returned channel will be closed at the end of the operation.
 func Carve(data []byte, min, max uint, ascii, trim bool) <-chan *String {

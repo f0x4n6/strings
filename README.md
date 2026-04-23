@@ -1,5 +1,5 @@
 # strings
-Carve Unicode and/or ASCII strings from files.
+Carve ASCII and Unicode strings from files.
 
 ```console
 go install go.foxforensics.dev/strings@latest
